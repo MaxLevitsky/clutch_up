@@ -1,0 +1,197 @@
+{
+  "project": "ClutchUp",
+  "version": "1.0",
+  "description": "A community-first competitive gaming platform for beginners and casual players. It combines rank-based tournaments, simple progression, and social play.",
+  "features": [
+    {
+      "id": "F001",
+      "name": "Beginner Tournament Discovery and Registration",
+      "description": "Players can discover and join rank-based beginner tournaments",
+      "scenarios": [
+        {
+          "id": "SC001",
+          "useCase": "UC-1.1",
+          "given": "The user has completed onboarding, has a verified account, and has an assigned beginner rank",
+          "when": "The user opens the tournaments page and joins an eligible beginner tournament",
+          "then": "The system registers the user in the bracket and shows tournament details and start time",
+          "requirements": ["FR-1", "FR-2", "FR-3"],
+          "nfRequirements": ["NFR-1", "NFR-2", "NFR-3"]
+        },
+        {
+          "id": "SC002",
+          "useCase": "UC-1.2",
+          "given": "The user attempts to join a tournament outside their current rank or region",
+          "when": "The system validates eligibility during registration",
+          "then": "The system blocks registration and explains why the tournament is unavailable",
+          "requirements": ["FR-4", "FR-5"],
+          "nfRequirements": ["NFR-4", "NFR-5"]
+        }
+      ]
+    },
+    {
+      "id": "F002",
+      "name": "Team Creation and Management",
+      "description": "Players can create teams, invite friends, and manage team roster",
+      "scenarios": [
+        {
+          "id": "SC003",
+          "useCase": "UC-2.1",
+          "given": "The user is authenticated and has access to team features",
+          "when": "The user creates a team and sends invite links to friends",
+          "then": "A new team is created and invited users can accept and join the roster",
+          "requirements": ["FR-6", "FR-7", "FR-8"],
+          "nfRequirements": ["NFR-6", "NFR-7"]
+        },
+        {
+          "id": "SC004",
+          "useCase": "UC-2.2",
+          "given": "An active team exists with enough eligible members to enter a tournament",
+          "when": "The team owner joins a private or community team tournament",
+          "then": "The roster is locked for that event and all eligible team members are registered",
+          "requirements": ["FR-9", "FR-10"],
+          "nfRequirements": ["NFR-8", "NFR-9"]
+        }
+      ]
+    },
+    {
+      "id": "F003",
+      "name": "Player Progression and Badges",
+      "description": "Players earn visible badges and level progression through tournament participation",
+      "scenarios": [
+        {
+          "id": "SC005",
+          "useCase": "UC-3.1",
+          "given": "The user has completed matches or tournaments that qualify for progression rewards",
+          "when": "Match and tournament results are finalized",
+          "then": "The system updates the player's profile with points, badges, and progression status",
+          "requirements": ["FR-11", "FR-12"],
+          "nfRequirements": ["NFR-10", "NFR-11"]
+        }
+      ]
+    }
+  ],
+  "requirements": {
+    "functional": [
+      {
+        "id": "FR-1",
+        "description": "The system shall show only tournaments that match the user's eligible rank and region"
+      },
+      {
+        "id": "FR-2",
+        "description": "The system shall allow a player to register for a tournament with one primary action"
+      },
+      {
+        "id": "FR-3",
+        "description": "The system shall confirm registration and display tournament timing, format, and expected next step"
+      },
+      {
+        "id": "FR-4",
+        "description": "The system shall validate rank, region, and account status before completing registration"
+      },
+      {
+        "id": "FR-5",
+        "description": "The system shall show a clear reason when a player is not eligible for a tournament"
+      },
+      {
+        "id": "FR-6",
+        "description": "The system shall allow a user to create a team with a unique name"
+      },
+      {
+        "id": "FR-7",
+        "description": "The system shall generate shareable invites for friend onboarding and team joining"
+      },
+      {
+        "id": "FR-8",
+        "description": "The system shall display current roster status and pending invites"
+      },
+      {
+        "id": "FR-9",
+        "description": "The system shall validate team size and player eligibility before team tournament entry"
+      },
+      {
+        "id": "FR-10",
+        "description": "The system shall lock the roster at registration or at a defined cutoff time"
+      },
+      {
+        "id": "FR-11",
+        "description": "The system shall award progression points based on tournament participation and outcomes"
+      },
+      {
+        "id": "FR-12",
+        "description": "The system shall display earned badges and progression history on the player profile"
+      }
+    ],
+    "nonFunctional": [
+      {
+        "id": "NFR-1",
+        "description": "Tournament eligibility check shall complete in under 2 seconds for 95% of requests"
+      },
+      {
+        "id": "NFR-2",
+        "description": "The registration flow shall be available on mobile and desktop responsive layouts"
+      },
+      {
+        "id": "NFR-3",
+        "description": "The system shall prevent duplicate registrations for the same tournament"
+      },
+      {
+        "id": "NFR-4",
+        "description": "Eligibility validation shall not expose internal logic or sensitive anti-abuse rules"
+      },
+      {
+        "id": "NFR-5",
+        "description": "Error messages shall be understandable to first-time users"
+      },
+      {
+        "id": "NFR-6",
+        "description": "Team creation shall complete in under 3 seconds for 95% of requests"
+      },
+      {
+        "id": "NFR-7",
+        "description": "Invite links shall be secure and expire or be revocable by the owner"
+      },
+      {
+        "id": "NFR-8",
+        "description": "Roster lock behavior shall be consistent and auditable"
+      },
+      {
+        "id": "NFR-9",
+        "description": "Team tournament registration shall handle concurrent updates safely"
+      },
+      {
+        "id": "NFR-10",
+        "description": "Progression updates shall be processed reliably after event completion"
+      },
+      {
+        "id": "NFR-11",
+        "description": "Badge and profile data shall load within acceptable profile-view latency targets"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "name": "Player",
+      "attributes": ["id", "username", "email", "rank", "region", "progression_level", "created_at"]
+    },
+    {
+      "name": "Tournament",
+      "attributes": ["id", "name", "rank_tier", "region", "capacity", "status", "start_time", "format"]
+    },
+    {
+      "name": "Team",
+      "attributes": ["id", "name", "badge", "owner_id", "created_at"]
+    },
+    {
+      "name": "Match",
+      "attributes": ["id", "tournament_id", "status", "scheduled_time"]
+    },
+    {
+      "name": "Badge",
+      "attributes": ["id", "name", "description", "criteria"]
+    },
+    {
+      "name": "Progression",
+      "attributes": ["id", "player_id", "points", "level", "badges", "unlocked_tiers"]
+    }
+  ]
+}
