@@ -1,0 +1,87 @@
+{
+  "product_name": "ClutchUp",
+  "type": "lean_canvas",
+  "version": "1.0",
+  "canvas": {
+    "problem": [
+      "Beginners struggle to enter competitive gaming due to fear, complexity, and toxicity",
+      "Unfair matchmaking and unclear progression systems",
+      "Lack of recognition for non-top players",
+      "Fragmented ecosystem (Discord, tournaments, games separated)"
+    ],
+    "existing_alternatives": [
+      "In-game ranked systems",
+      "Faceit / Challengermode",
+      "Discord tournaments",
+      "Playing only with friends"
+    ],
+    "solution": [
+      "Skill-based matchmaking with clear tiers",
+      "Beginner-friendly rank-based tournaments",
+      "Progression system (ranks, seasons, achievements)",
+      "Social system (teams, clans, friend tournaments)",
+      "Recognition system (badges, profiles, history)",
+      "Fast onboarding (2–3 minutes)"
+    ],
+    "unique_value_proposition": {
+      "short": "Competitive gaming without fear — grow, compete, belong",
+      "detailed": "The easiest way to start competing, improve, and get recognized—even as a beginner"
+    },
+    "high_level_concept": [
+      "Duolingo + Ranked + Tournaments for Gaming",
+      "Esports for everyone"
+    ],
+    "unfair_advantage": [
+      "Beginner-first design",
+      "Combination of progression + tournaments + community",
+      "Built-in social system (not dependent on Discord)",
+      "Strong potential for network effects"
+    ],
+    "customer_segments": {
+      "primary": [
+        "Players aged 16–30",
+        "Casual to semi-competitive gamers",
+        "Players curious about competitive gaming"
+      ],
+      "secondary": [
+        "Friend groups",
+        "Discord communities",
+        "Beginner teams"
+      ]
+    },
+    "early_adopters": [
+      "Players bored with standard ranked modes",
+      "Active Discord and Twitch users",
+      "Beginners curious but intimidated by esports",
+      "Socially motivated gamers"
+    ],
+    "key_metrics": [
+      "Percentage of users playing first match",
+      "Percentage of users joining first tournament",
+      "7-day and 30-day retention",
+      "Tournaments per user",
+      "Number of teams and social connections",
+      "Community engagement"
+    ],
+    "channels": [
+      "Discord",
+      "Twitch and YouTube streamers",
+      "TikTok and short-form content",
+      "Referral programs",
+      "Reddit and gaming communities"
+    ],
+    "cost_structure": [
+      "Platform development",
+      "Matchmaking and tournament systems",
+      "Infrastructure and servers",
+      "Community moderation",
+      "Marketing and influencer partnerships"
+    ],
+    "revenue_streams": [
+      "Cosmetics and profile customization",
+      "Optional paid tournaments",
+      "Season passes",
+      "Sponsored tournaments"
+    ]
+  }
+}
