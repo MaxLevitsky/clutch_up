@@ -73,52 +73,52 @@ frontend/
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+
-- npm or yarn
+- npm
 
-### Backend Setup
+### Quick Start
 
-1. Navigate to backend directory:
+#### 1. Run Backend (in first terminal)
+
 ```bash
 cd backend
-```
-
-2. Create virtual environment:
-```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+venv\Scripts\activate
 pip install -r requirements.txt
-```
-
-4. Run the backend server:
-```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-The backend API will be available at `http://localhost:8000`
-API documentation at `http://localhost:8000/docs`
+Backend will be available at `http://localhost:8000`
+API documentation: `http://localhost:8000/docs`
 
-### Frontend Setup
+#### 2. Run Frontend (in second terminal)
 
-1. Navigate to frontend directory:
 ```bash
 cd frontend
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Run the development server:
-```bash
 npm run dev
 ```
 
-The frontend will be available at `http://localhost:3000`
+Frontend will be available at `http://localhost:5173`
+
+### Verify Installation
+
+1. Open `http://localhost:5173` in your browser
+2. Navigate to "Tournaments" page
+3. You should see a list of tournaments
+
+### Running Tests
+
+Backend tests:
+```bash
+cd backend
+pytest
+```
+
+Frontend tests:
+```bash
+cd frontend
+npm test
+```
 
 ### Running Tests
 

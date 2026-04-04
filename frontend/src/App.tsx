@@ -5,6 +5,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { TournamentsPage } from './pages/TournamentsPage';
+import { TournamentCreatePage } from './pages/TournamentCreatePage';
 import { TeamsPage } from './pages/TeamsPage';
 
 const queryClient = new QueryClient({
@@ -26,6 +27,7 @@ function App() {
             <div className="nav-links">
               <Link to="/">Home</Link>
               <Link to="/tournaments">Tournaments</Link>
+              <Link to="/tournaments/create">Create Tournament</Link>
               <Link to="/teams">Teams</Link>
             </div>
           </nav>
@@ -34,6 +36,7 @@ function App() {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/tournaments" element={<TournamentsPage />} />
+              <Route path="/tournaments/create" element={<TournamentCreatePage />} />
               <Route path="/teams" element={<TeamsPage />} />
             </Routes>
           </main>

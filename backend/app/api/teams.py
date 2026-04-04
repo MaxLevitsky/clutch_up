@@ -21,7 +21,7 @@ def get_team_service(db: Session = Depends(get_db)) -> TeamService:
     return TeamService(team_repo, player_repo, tournament_repo)
 
 
-@router.post("/", response_model=dict)
+@router.post("/")
 def create_team(
     team_data: TeamCreate,
     owner_id: int,
@@ -37,6 +37,17 @@ def create_team(
 
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
+
+    # Convert Team model to dict for JSON serialization
+    if "team" in result and result["team"]:
+        team = result["team"]
+        result["team"] = {
+            "id": team.id,
+            "name": team.name,
+            "badge": team.badge,
+            "owner_id": team.owner_id,
+            "created_at": team.created_at.isoformat() if team.created_at else None
+        }
 
     return result
 

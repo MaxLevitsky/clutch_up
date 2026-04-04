@@ -1,10 +1,10 @@
-# Feature: F001
-# Scenario: SC001, SC002
+# Feature: F001, F004
+# Scenario: SC001, SC002, SC007
 # Tournament Schemas
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 
 class TournamentResponse(BaseModel):
@@ -27,3 +27,17 @@ class TournamentResponse(BaseModel):
 class TournamentListResponse(BaseModel):
     tournaments: List[TournamentResponse]
     total: int
+
+
+# Feature: F004
+# Scenario: SC007
+# Requirements: FR-13, FR-14, FR-16
+class TournamentCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=200)
+    rank_tier: str = Field(..., pattern="^(BEGINNER|INTERMEDIATE|ADVANCED|EXPERT)$")
+    region: str = Field(..., pattern="^(NA|EU|ASIA)$")
+    capacity: int = Field(..., ge=8, le=64)
+    format: str = Field(..., min_length=1, max_length=100)
+    start_time: datetime
+    is_team_tournament: bool
+    team_size: Optional[int] = Field(None, ge=2, le=5)

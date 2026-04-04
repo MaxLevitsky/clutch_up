@@ -1,9 +1,9 @@
-// Feature: F001
-// Scenario: SC001, SC002
+// Feature: F001, F004
+// Scenario: SC001, SC002, SC007
 // Tournament Hooks
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tournamentsApi, RegistrationRequest } from '../services/api/tournaments';
+import { tournamentsApi, RegistrationRequest, TournamentCreateRequest } from '../services/api/tournaments';
 
 /**
  * Feature: F001
@@ -61,5 +61,24 @@ export const useValidateEligibility = (playerId: number, tournamentId: number) =
     queryKey: ['tournaments', 'eligibility', playerId, tournamentId],
     queryFn: () => tournamentsApi.validateEligibility(playerId, tournamentId),
     enabled: !!playerId && !!tournamentId,
+  });
+};
+
+/**
+ * Feature: F004
+ * Scenario: SC007
+ * Requirements: FR-13, FR-14, FR-15, FR-16
+ * Hook to create a tournament
+ */
+export const useCreateTournament = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: TournamentCreateRequest) =>
+      tournamentsApi.createTournament(request),
+    onSuccess: () => {
+      // NFR-14: Invalidate tournaments query to show newly created tournament
+      queryClient.invalidateQueries({ queryKey: ['tournaments'] });
+    },
   });
 };

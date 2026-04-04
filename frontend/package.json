@@ -17,12 +17,16 @@
     "@testing-library/jest-dom": "^6.1.0",
     "@vitejs/plugin-react": "^4.2.0",
     "vite": "^5.0.0",
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "jsdom": "^23.0.0",
+    "@vitest/ui": "^1.0.0",
+    "@playwright/test": "^1.40.0"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "test": "vitest",
+    "test:e2e": "playwright test",
     "preview": "vite preview"
   }
 }

@@ -56,3 +56,15 @@ class TournamentRepository:
 
     def get_all_tournaments(self) -> List[Tournament]:
         return self.db.query(Tournament).all()
+
+    def create(self, tournament: Tournament) -> Tournament:
+        """
+        Feature: F004
+        Scenario: SC007
+        Requirement: FR-13
+        Create a new tournament in the database
+        """
+        self.db.add(tournament)
+        self.db.commit()
+        self.db.refresh(tournament)
+        return tournament

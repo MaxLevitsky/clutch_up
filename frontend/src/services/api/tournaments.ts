@@ -1,5 +1,5 @@
-// Feature: F001
-// Scenario: SC001, SC002
+// Feature: F001, F004
+// Scenario: SC001, SC002, SC007
 // Tournament API Client
 
 import apiClient from './client';
@@ -15,6 +15,17 @@ export interface Tournament {
   start_time: string;
   format: string;
   is_team_tournament: number;
+  team_size?: number;
+}
+
+export interface TournamentCreateRequest {
+  name: string;
+  rank_tier: string;
+  region: string;
+  capacity: number;
+  format: string;
+  start_time: string;
+  is_team_tournament: boolean;
   team_size?: number;
 }
 
@@ -89,6 +100,17 @@ export const tournamentsApi = {
     const response = await apiClient.get(
       `/tournaments/validate-eligibility/${playerId}/${tournamentId}`
     );
+    return response.data;
+  },
+
+  /**
+   * Feature: F004
+   * Scenario: SC007
+   * Requirements: FR-13, FR-14, FR-15, FR-16
+   * Create a new tournament
+   */
+  createTournament: async (request: TournamentCreateRequest): Promise<Tournament> => {
+    const response = await apiClient.post<Tournament>('/tournaments/', request);
     return response.data;
   },
 };

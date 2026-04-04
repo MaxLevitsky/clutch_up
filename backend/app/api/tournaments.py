@@ -1,16 +1,17 @@
-# Feature: F001
-# Scenario: SC001, SC002
+# Feature: F001, F004
+# Scenario: SC001, SC002, SC007
 # Tournament API Endpoints
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.tournament_service import TournamentService
 from app.repositories.tournament_repository import TournamentRepository
 from app.repositories.player_repository import PlayerRepository
-from app.schemas.tournament import TournamentResponse, TournamentListResponse
+from app.schemas.tournament import TournamentResponse, TournamentListResponse, TournamentCreateRequest
 from app.schemas.registration import RegistrationRequest, RegistrationResponse
 from typing import List
+from pydantic import ValidationError
 
 router = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 
@@ -99,3 +100,55 @@ def validate_tournament_eligibility(
     Validate player eligibility for a tournament
     """
     return service.validate_eligibility(player_id, tournament_id)
+
+
+@router.post("/", response_model=TournamentResponse, status_code=status.HTTP_201_CREATED)
+def create_tournament(
+    request: TournamentCreateRequest,
+    service: TournamentService = Depends(get_tournament_service)
+):
+    """
+    Feature: F004
+    Scenario: SC007
+    Requirements: FR-13, FR-14, FR-15, FR-16
+    NFR: NFR-12, NFR-13, NFR-14
+    Create a new tournament
+    """
+    try:
+        result = service.create_tournament(
+            name=request.name,
+            rank_tier=request.rank_tier,
+            region=request.region,
+            capacity=request.capacity,
+            format=request.format,
+            start_time=request.start_time,
+            is_team_tournament=request.is_team_tournament,
+            team_size=request.team_size
+        )
+
+        # NFR-13: Return 400 with clear error messages for validation errors
+        if result["status"] == "error":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=result["message"]
+            )
+
+        # NFR-14: Return 201 Created, tournament immediately visible via GET /api/tournaments/
+        return result["tournament"]
+
+    except ValidationError as e:
+        # NFR-13: Pydantic validation errors return 400 with clear messages
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Log the actual error for debugging
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Internal server error: {str(e)}"
+        )

@@ -4,10 +4,11 @@
 
 | Project Name | ClutchUp |
 | :---- | :---- |
-| **Document Version** | 1.0 |
-| **Specification Version** | 1.0 |
+| **Document Version** | 1.1 |
+| **Specification Version** | 1.1 |
 | **Author** | Maksim Levitskii |
-| **Date** | March 21, 2026 |
+| **Date** | April 4, 2026 |
+| **Change Summary** | Added tournament creation tests (FR-13 to FR-16, NFR-12 to NFR-14) |
 
 # **1\. Document Information**
 
@@ -21,15 +22,18 @@ This document defines the overall testing approach for ClutchUp. It explains wha
 
 ## **3.1 In Scope**
 
-* User onboarding required to reach tournament eligibility.  
-* Rank-based beginner tournament discovery and registration.  
-* Tournament eligibility validation for rank, region, and account status.  
-* Team creation, invite generation, invite acceptance, and roster management.  
-* Team tournament registration and roster lock behavior.  
-* Player progression, badges, and tournament-tier unlock logic.  
-* Player profile updates related to tournament history and progression visibility.  
-* Notifications triggered by tournament registration and progression updates.  
-* Core UI and API flows for the features listed above.  
+* User onboarding required to reach tournament eligibility.
+* Rank-based beginner tournament discovery and registration.
+* **Tournament creation through web interface (NEW - v1.1).**
+* Tournament eligibility validation for rank, region, and account status.
+* Team creation, invite generation, invite acceptance, and roster management.
+* **Team creation UI enhancement and end-to-end validation (NEW - v1.1).**
+* Team tournament registration and roster lock behavior.
+* Player progression, badges, and tournament-tier unlock logic.
+* Player profile updates related to tournament history and progression visibility.
+* Notifications triggered by tournament registration and progression updates.
+* Core UI and API flows for the features listed above.
+* **API integration testing for new creation endpoints (NEW - v1.1).**
 * Performance, reliability, security, and monitoring checks for critical workflows.
 
 ## **3.2 Out of Scope**
@@ -65,39 +69,45 @@ ClutchUp is a web-based competitive gaming platform designed for beginner and ca
 
 **Purpose:** Validate isolated business logic, calculations, transformations, validation rules, and edge cases.
 
-**Typical Coverage:** 
+**Typical Coverage:**
 
-* Rank eligibility rules and region checks.  
-* Tournament registration validation.  
-* Team roster validation and roster-lock rules.  
-* Progression point calculations and badge assignment logic.  
-* Invite token generation and validation.  
+* Rank eligibility rules and region checks.
+* Tournament registration validation.
+* **Tournament creation business logic and validation (NEW - v1.1).**
+* **Tournament parameter validation: capacity, start time, team size (NEW - v1.1).**
+* Team roster validation and roster-lock rules.
+* Progression point calculations and badge assignment logic.
+* Invite token generation and validation.
 * Error mapping and user-facing validation messages.
 
 ## **7.2 Integration Testing**
 
 **Purpose:** Validate interaction between components, services, databases, and APIs.
 
-**Typical Coverage:** 
+**Typical Coverage:**
 
-* UI/API to tournament service integration.  
-* Service and repository interaction for teams and invites.  
-* Serialization and deserialization of tournament and team payloads.  
-* Progression updates after match-result processing.  
-* Notification dispatch after tournament join or progression event.  
+* UI/API to tournament service integration.
+* **Tournament creation API endpoint validation and response schema (NEW - v1.1).**
+* **Created tournament immediate visibility in tournament lists (NEW - v1.1).**
+* Service and repository interaction for teams and invites.
+* Serialization and deserialization of tournament and team payloads.
+* Progression updates after match-result processing.
+* Notification dispatch after tournament join or progression event.
 * Profile updates after tournament completion.
 
 ## **7.3 End-to-End Testing**
 
 **Purpose:** Validate critical user workflows from the user perspective.
 
-**Typical Coverage:** 
+**Typical Coverage:**
 
-* Onboarding to first eligible tournament join.  
-* Ineligible player blocked from joining the wrong tournament.  
-* Team creation and friend invite acceptance.  
-* Team joins a team tournament and roster is locked.  
-* Tournament completion leads to visible progression update.  
+* Onboarding to first eligible tournament join.
+* Ineligible player blocked from joining the wrong tournament.
+* **Tournament creation flow from UI form to database persistence and immediate visibility (NEW - v1.1).**
+* Team creation and friend invite acceptance.
+* **Team creation UI validation and end-to-end workflow verification (NEW - v1.1).**
+* Team joins a team tournament and roster is locked.
+* Tournament completion leads to visible progression update.
 * Badge visibility in profile after reward processing.
 
 ## **7.4 Non-Functional Testing**
@@ -123,10 +133,17 @@ ClutchUp is a web-based competitive gaming platform designed for beginner and ca
 | FR-004 | Eligible team can join a team tournament | Yes | Yes | Yes | No | No | Yes |
 | FR-005 | Tournament completion updates progression and badges | Yes | Yes | Yes | No | No | Yes |
 | FR-006 | Notifications are sent for registration and progression events | No | Yes | Yes | No | No | Yes |
+| **FR-013** | **Create tournament with valid parameters (NEW - v1.1)** | **Yes** | **Yes** | **Yes** | **No** | **No** | **Yes** |
+| **FR-014** | **Validate tournament parameters (capacity, start time) (NEW - v1.1)** | **Yes** | **Yes** | **Yes** | **No** | **Yes** | **Yes** |
+| **FR-015** | **Initialize tournament status as UPCOMING (NEW - v1.1)** | **Yes** | **Yes** | **Yes** | **No** | **No** | **Yes** |
+| **FR-016** | **Validate team size requirement for team tournaments (NEW - v1.1)** | **Yes** | **Yes** | **Yes** | **No** | **No** | **Yes** |
 | NFR-001 | Tournament eligibility and join flow meet latency targets | No | Yes | Yes | Yes | No | Yes |
 | NFR-002 | Team invite links are secure and resistant to abuse | Yes | Yes | No | No | Yes | Yes |
 | NFR-003 | Platform remains stable under expected concurrent tournament load | No | Yes | No | Yes | No | Yes |
 | NFR-004 | Core workflows remain observable in production | No | No | No | No | No | Yes |
+| **NFR-012** | **Tournament creation completes within 2 seconds (NEW - v1.1)** | **No** | **Yes** | **Yes** | **Yes** | **No** | **Yes** |
+| **NFR-013** | **Validation errors return 400 with clear messages (NEW - v1.1)** | **No** | **Yes** | **Yes** | **No** | **No** | **Yes** |
+| **NFR-014** | **Created tournament immediately visible in lists (NEW - v1.1)** | **No** | **Yes** | **Yes** | **No** | **No** | **Yes** |
 
 # **9\. Test Priorities**
 
@@ -159,17 +176,20 @@ Environment configuration includes:
 
 Testing will use representative data sets that cover both expected and problematic behavior:
 
-* Valid beginner player accounts.  
-* Valid and invalid ranks.  
-* Allowed and disallowed regions.  
-* Teams with valid and invalid roster sizes.  
-* Valid inputs, invalid inputs, and empty inputs.  
-* Boundary values for rank tiers, invite expiry, and tournament capacity.  
-* Duplicate registration attempts.  
-* Expired, malformed, and tampered invite links.  
-* Large tournament datasets for performance scenarios.  
-* Security-related malicious inputs such as forged requests and invalid payloads.  
+* Valid beginner player accounts.
+* Valid and invalid ranks.
+* Allowed and disallowed regions.
+* Teams with valid and invalid roster sizes.
+* Valid inputs, invalid inputs, and empty inputs.
+* Boundary values for rank tiers, invite expiry, and tournament capacity.
+* **Boundary values for tournament capacity (8-64 players) and team size (2-5 players) (NEW - v1.1).**
+* **Valid and invalid tournament start times (future vs past) (NEW - v1.1).**
+* Duplicate registration attempts.
+* Expired, malformed, and tampered invite links.
+* Large tournament datasets for performance scenarios.
+* Security-related malicious inputs such as forged requests and invalid payloads.
 * Performance datasets with concurrent registration attempts.
+* **Tournament creation payloads with missing or invalid required fields (NEW - v1.1).**
 
 # **12\. Automation Strategy**
 
@@ -248,10 +268,17 @@ Manual testing will remain for:
 | FR-004 | The system must allow an eligible team to register for a team tournament. |
 | FR-005 | The system must update player progression, badges, and unlocked tiers after tournament completion. |
 | FR-006 | The system must notify users about successful tournament registration and progression updates. |
+| **FR-013** | **The system must allow tournament organizers to create tournaments with valid parameters (NEW - v1.1).** |
+| **FR-014** | **The system must validate tournament capacity (8-64) and start time (future only) (NEW - v1.1).** |
+| **FR-015** | **The system must initialize newly created tournaments with status UPCOMING and registered_count 0 (NEW - v1.1).** |
+| **FR-016** | **The system must require team_size (2-5) for team tournaments and prohibit it for solo tournaments (NEW - v1.1).** |
 | NFR-001 | Tournament eligibility and join actions must meet defined latency targets. |
 | NFR-002 | Team invite links must be secure, revocable, and resistant to tampering. |
 | NFR-003 | Core tournament and team workflows must remain stable under expected concurrent load. |
 | NFR-004 | Core workflows must be observable through logs, metrics, and alerts. |
+| **NFR-012** | **Tournament creation API response must complete within 2 seconds (NEW - v1.1).** |
+| **NFR-013** | **Tournament creation validation errors must return HTTP 400 with clear error messages (NEW - v1.1).** |
+| **NFR-014** | **Created tournaments must be immediately visible in tournament lists (NEW - v1.1).** |
 
 # **Test Cases**
 
@@ -890,6 +917,318 @@ Manual testing will remain for:
 
 **Automation ID:** AT-NFR-004-MON-01
 
+### **TC-FR-013-01 — Create tournament with valid parameters (NEW - v1.1)**
+
+**Requirement ID:** FR-013
+
+**Title:** Create tournament with valid parameters
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament repository is available and tournament service is initialized.
+
+**Test Data:** Valid tournament creation parameters (name, rank_tier, region, capacity, format, future start_time, is_team_tournament=False).
+
+**Steps:** Call service.create_tournament() with valid parameters.
+
+**Expected Result:** Tournament is created with status UPCOMING, registered_count 0, and all fields correctly populated.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_success
+
+### **TC-FR-013-02 — Create tournament via API endpoint (NEW - v1.1)**
+
+**Requirement ID:** FR-013
+
+**Title:** Create tournament via API endpoint
+
+**Type:** Functional
+
+**Level:** Integration
+
+**Priority:** High
+
+**Preconditions:** API server is running with test database.
+
+**Test Data:** Valid HTTP POST request payload with all required tournament fields.
+
+**Steps:** POST /api/tournaments/ with valid JSON payload.
+
+**Expected Result:** Response returns 201 Created with tournament data including status UPCOMING and registered_count 0.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_success
+
+### **TC-FR-014-01 — Reject tournament with invalid capacity (NEW - v1.1)**
+
+**Requirement ID:** FR-014
+
+**Title:** Reject tournament with invalid capacity
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament service is initialized.
+
+**Test Data:** Tournament parameters with capacity=4 (below minimum of 8).
+
+**Steps:** Call service.create_tournament() with capacity < 8.
+
+**Expected Result:** Returns error status with message "Capacity must be between 8 and 64".
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_invalid_capacity
+
+### **TC-FR-014-02 — Reject tournament with past start time (NEW - v1.1)**
+
+**Requirement ID:** FR-014
+
+**Title:** Reject tournament with past start time
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament service is initialized.
+
+**Test Data:** Tournament parameters with start_time in the past.
+
+**Steps:** Call service.create_tournament() with start_time < current time.
+
+**Expected Result:** Returns error status with message "Start time must be in the future".
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_past_start_time
+
+### **TC-FR-014-03 — API returns 400 for invalid capacity (NEW - v1.1)**
+
+**Requirement ID:** FR-014
+
+**Title:** API returns 400 for invalid capacity
+
+**Type:** Functional
+
+**Level:** Integration
+
+**Priority:** High
+
+**Preconditions:** API server is running with test database.
+
+**Test Data:** HTTP POST payload with capacity=100 (exceeds maximum of 64).
+
+**Steps:** POST /api/tournaments/ with invalid capacity.
+
+**Expected Result:** Response returns 400 Bad Request with clear error message.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_invalid_capacity
+
+### **TC-FR-014-04 — API returns 400 for past start time (NEW - v1.1)**
+
+**Requirement ID:** FR-014
+
+**Title:** API returns 400 for past start time
+
+**Type:** Functional
+
+**Level:** Integration
+
+**Priority:** High
+
+**Preconditions:** API server is running with test database.
+
+**Test Data:** HTTP POST payload with past start_time.
+
+**Steps:** POST /api/tournaments/ with past start_time.
+
+**Expected Result:** Response returns 400 Bad Request with clear error message.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_past_start_time
+
+### **TC-FR-015-01 — New tournament has UPCOMING status (NEW - v1.1)**
+
+**Requirement ID:** FR-015
+
+**Title:** New tournament has UPCOMING status
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament service is initialized.
+
+**Test Data:** Valid tournament creation parameters.
+
+**Steps:** Call service.create_tournament() and inspect returned tournament object.
+
+**Expected Result:** Tournament status is TournamentStatus.UPCOMING and registered_count is 0.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_initial_status
+
+### **TC-FR-016-01 — Team tournament requires team_size (NEW - v1.1)**
+
+**Requirement ID:** FR-016
+
+**Title:** Team tournament requires team_size
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament service is initialized.
+
+**Test Data:** Tournament parameters with is_team_tournament=True and team_size=None.
+
+**Steps:** Call service.create_tournament() with missing team_size for team tournament.
+
+**Expected Result:** Returns error status with message "Team tournaments must specify team_size".
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_team_missing_size
+
+### **TC-FR-016-02 — Solo tournament prohibits team_size (NEW - v1.1)**
+
+**Requirement ID:** FR-016
+
+**Title:** Solo tournament prohibits team_size
+
+**Type:** Functional
+
+**Level:** Unit
+
+**Priority:** High
+
+**Preconditions:** Tournament service is initialized.
+
+**Test Data:** Tournament parameters with is_team_tournament=False and team_size=3.
+
+**Steps:** Call service.create_tournament() with team_size for solo tournament.
+
+**Expected Result:** Returns error status with message "Solo tournaments must not specify team_size".
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_create_tournament_solo_with_team_size
+
+### **TC-FR-016-03 — API validates team_size requirement (NEW - v1.1)**
+
+**Requirement ID:** FR-016
+
+**Title:** API validates team_size requirement
+
+**Type:** Functional
+
+**Level:** Integration
+
+**Priority:** High
+
+**Preconditions:** API server is running with test database.
+
+**Test Data:** HTTP POST payload with is_team_tournament=True and missing team_size.
+
+**Steps:** POST /api/tournaments/ with invalid team_size configuration.
+
+**Expected Result:** Response returns 400 Bad Request with clear error message.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_team_size_validation
+
+### **TC-NFR-012-01 — Tournament creation completes within 2 seconds (NEW - v1.1)**
+
+**Requirement ID:** NFR-012
+
+**Title:** Tournament creation completes within 2 seconds
+
+**Type:** Non-Functional
+
+**Level:** Performance
+
+**Priority:** Medium
+
+**Preconditions:** API server running in test environment.
+
+**Test Data:** Valid tournament creation request.
+
+**Steps:** POST /api/tournaments/ and measure response time.
+
+**Expected Result:** Response completes in < 2000ms with successful creation.
+
+**Automation Status:** Planned
+
+**Automation ID:** test_api_create_tournament_performance
+
+### **TC-NFR-013-01 — Validation errors return clear messages (NEW - v1.1)**
+
+**Requirement ID:** NFR-013
+
+**Title:** Validation errors return clear messages
+
+**Type:** Non-Functional
+
+**Level:** Integration
+
+**Priority:** Medium
+
+**Preconditions:** API server running with test database.
+
+**Test Data:** Multiple invalid tournament creation requests (invalid capacity, past time, missing fields).
+
+**Steps:** POST /api/tournaments/ with each invalid payload and inspect error messages.
+
+**Expected Result:** All validation errors return HTTP 400 with clear, actionable error messages.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_validation_messages
+
+### **TC-NFR-014-01 — Created tournament immediately visible (NEW - v1.1)**
+
+**Requirement ID:** NFR-014
+
+**Title:** Created tournament immediately visible
+
+**Type:** Non-Functional
+
+**Level:** Integration
+
+**Priority:** High
+
+**Preconditions:** API server running with test database.
+
+**Test Data:** Valid tournament creation request.
+
+**Steps:** POST /api/tournaments/ to create tournament, then GET /api/tournaments/ to list all tournaments.
+
+**Expected Result:** Newly created tournament appears in the list response immediately.
+
+**Automation Status:** Not Started
+
+**Automation ID:** test_api_create_tournament_immediate_visibility
+
 **Notes:** Alert fatigue should be avoided.
 
 ### **TC-NFR-004-02 — Notification delivery failure is visible in logs and metrics**
@@ -948,4 +1287,17 @@ Manual testing will remain for:
 | NFR-003 | Core tournament and team workflows must remain stable under expected concurrent load | TC-NFR-003-02 | Reliability | AT-NFR-003-REL-02 | Planned |
 | NFR-004 | Core workflows must be observable through logs, metrics, and alerts | TC-NFR-004-01 | Monitoring | AT-NFR-004-MON-01 | Planned |
 | NFR-004 | Core workflows must be observable through logs, metrics, and alerts | TC-NFR-004-02 | Monitoring | AT-NFR-004-MON-02 | Planned |
+| **FR-013** | **The system must allow tournament organizers to create tournaments with valid parameters (NEW - v1.1)** | **TC-FR-013-01** | **Unit** | **test_create_tournament_success** | **Not Started** |
+| **FR-013** | **The system must allow tournament organizers to create tournaments with valid parameters (NEW - v1.1)** | **TC-FR-013-02** | **Integration** | **test_api_create_tournament_success** | **Not Started** |
+| **FR-014** | **The system must validate tournament capacity (8-64) and start time (future only) (NEW - v1.1)** | **TC-FR-014-01** | **Unit** | **test_create_tournament_invalid_capacity** | **Not Started** |
+| **FR-014** | **The system must validate tournament capacity (8-64) and start time (future only) (NEW - v1.1)** | **TC-FR-014-02** | **Unit** | **test_create_tournament_past_start_time** | **Not Started** |
+| **FR-014** | **The system must validate tournament capacity (8-64) and start time (future only) (NEW - v1.1)** | **TC-FR-014-03** | **Integration** | **test_api_create_tournament_invalid_capacity** | **Not Started** |
+| **FR-014** | **The system must validate tournament capacity (8-64) and start time (future only) (NEW - v1.1)** | **TC-FR-014-04** | **Integration** | **test_api_create_tournament_past_start_time** | **Not Started** |
+| **FR-015** | **The system must initialize newly created tournaments with status UPCOMING and registered_count 0 (NEW - v1.1)** | **TC-FR-015-01** | **Unit** | **test_create_tournament_initial_status** | **Not Started** |
+| **FR-016** | **The system must require team_size (2-5) for team tournaments and prohibit it for solo tournaments (NEW - v1.1)** | **TC-FR-016-01** | **Unit** | **test_create_tournament_team_missing_size** | **Not Started** |
+| **FR-016** | **The system must require team_size (2-5) for team tournaments and prohibit it for solo tournaments (NEW - v1.1)** | **TC-FR-016-02** | **Unit** | **test_create_tournament_solo_with_team_size** | **Not Started** |
+| **FR-016** | **The system must require team_size (2-5) for team tournaments and prohibit it for solo tournaments (NEW - v1.1)** | **TC-FR-016-03** | **Integration** | **test_api_create_tournament_team_size_validation** | **Not Started** |
+| **NFR-012** | **Tournament creation API response must complete within 2 seconds (NEW - v1.1)** | **TC-NFR-012-01** | **Performance** | **test_api_create_tournament_performance** | **Planned** |
+| **NFR-013** | **Tournament creation validation errors must return HTTP 400 with clear error messages (NEW - v1.1)** | **TC-NFR-013-01** | **Integration** | **test_api_create_tournament_validation_messages** | **Not Started** |
+| **NFR-014** | **Created tournaments must be immediately visible in tournament lists (NEW - v1.1)** | **TC-NFR-014-01** | **Integration** | **test_api_create_tournament_immediate_visibility** | **Not Started** |
 

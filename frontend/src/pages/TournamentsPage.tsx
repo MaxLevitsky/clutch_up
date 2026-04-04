@@ -4,18 +4,18 @@
 
 import React, { useState } from 'react';
 import { TournamentList } from '../components/TournamentList';
-import { useEligibleTournaments, useRegisterTournament } from '../hooks/useTournaments';
+import { useAllTournaments, useRegisterTournament } from '../hooks/useTournaments';
 
 /**
- * Feature: F001
- * Scenario: SC001, SC002
- * Main tournaments page with registration flow
+ * Feature: F001, F004
+ * Scenario: SC001, SC002, SC007
+ * Main tournaments page with registration flow and all tournaments display
  */
 export const TournamentsPage: React.FC = () => {
   // TODO: Replace with actual player context/auth
   const [currentPlayerId] = useState(1);
 
-  const { data, isLoading } = useEligibleTournaments(currentPlayerId);
+  const { data, isLoading } = useAllTournaments();
   const registerMutation = useRegisterTournament();
 
   const handleJoinTournament = async (tournamentId: number) => {

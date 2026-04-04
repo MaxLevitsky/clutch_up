@@ -1,11 +1,12 @@
-# Feature: F001
-# Scenario: SC001, SC002
-# Tournament Service - Business Logic for Tournament Registration and Eligibility
+# Feature: F001, F004
+# Scenario: SC001, SC002, SC007
+# Tournament Service - Business Logic for Tournament Registration, Eligibility, and Creation
 
 from app.repositories.tournament_repository import TournamentRepository
 from app.repositories.player_repository import PlayerRepository
-from app.models.tournament import Tournament
+from app.models.tournament import Tournament, TournamentStatus
 from typing import List, Dict, Any
+from datetime import datetime
 
 
 class TournamentService:
@@ -151,3 +152,84 @@ class TournamentService:
     def get_all_tournaments(self) -> List[Tournament]:
         """Get all tournaments for admin/display purposes"""
         return self.tournament_repo.get_all_tournaments()
+
+    def create_tournament(
+        self,
+        name: str,
+        rank_tier: str,
+        region: str,
+        capacity: int,
+        format: str,
+        start_time: datetime,
+        is_team_tournament: bool,
+        team_size: int | None
+    ) -> Dict[str, Any]:
+        """
+        Feature: F004
+        Scenario: SC007
+        Requirements: FR-13, FR-14, FR-15, FR-16
+        Create a new tournament with validation
+        """
+        # FR-14: Validate capacity (8-64)
+        if capacity < 8 or capacity > 64:
+            return {
+                "status": "error",
+                "message": "Capacity must be between 8 and 64"
+            }
+
+        # FR-14: Validate start time (must be in future)
+        if start_time <= datetime.now():
+            return {
+                "status": "error",
+                "message": "Start time must be in the future"
+            }
+
+        # FR-16: Validate team_size consistency
+        if is_team_tournament and team_size is None:
+            return {
+                "status": "error",
+                "message": "Team tournaments must specify team_size"
+            }
+
+        if not is_team_tournament and team_size is not None:
+            return {
+                "status": "error",
+                "message": "Solo tournaments must not specify team_size"
+            }
+
+        # FR-16: Validate team_size range (2-5)
+        if team_size is not None and (team_size < 2 or team_size > 5):
+            return {
+                "status": "error",
+                "message": "Team size must be between 2 and 5"
+            }
+
+        # FR-13, FR-15: Create tournament with UPCOMING status and registered_count 0
+        try:
+            tournament = Tournament(
+                name=name,
+                rank_tier=rank_tier,
+                region=region,
+                capacity=capacity,
+                format=format,
+                start_time=start_time,
+                is_team_tournament=1 if is_team_tournament else 0,
+                team_size=team_size,
+                status=TournamentStatus.UPCOMING,  # FR-15
+                registered_count=0  # FR-15
+            )
+
+            created_tournament = self.tournament_repo.create(tournament)
+
+            return {
+                "status": "success",
+                "message": f"Tournament '{name}' created successfully",
+                "tournament": created_tournament
+            }
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": "Tournament creation failed. Please try again.",
+                "error": str(e)
+            }
