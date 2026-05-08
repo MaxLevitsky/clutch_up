@@ -3,6 +3,7 @@
 // Tournament List Component
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Tournament } from '../services/api/tournaments';
 
 interface TournamentListProps {
@@ -35,7 +36,7 @@ export const TournamentList: React.FC<TournamentListProps> = ({
       <h2>Available Tournaments</h2>
       {tournaments.map((tournament) => (
         <div key={tournament.id} className="tournament-card">
-          <h3>{tournament.name}</h3>
+          <h3><Link to={`/tournaments/${tournament.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{tournament.name}</Link></h3>
           <div className="tournament-details">
             <p>
               <strong>Rank:</strong> {tournament.rank_tier}
@@ -57,11 +58,14 @@ export const TournamentList: React.FC<TournamentListProps> = ({
             <p>
               <strong>Status:</strong> {tournament.status}
             </p>
+            <p>
+              <strong>Created by:</strong> {tournament.creator_username ?? '—'}
+            </p>
           </div>
           <button
             onClick={() => onJoinTournament(tournament.id)}
             disabled={
-              tournament.status !== 'REGISTRATION_OPEN' ||
+              !['REGISTRATION_OPEN', 'UPCOMING'].includes(tournament.status) ||
               tournament.registered_count >= tournament.capacity
             }
             className="join-button"

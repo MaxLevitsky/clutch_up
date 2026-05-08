@@ -2,9 +2,10 @@
 // Scenario: SC003
 // Teams Page
 
-import React, { useState } from 'react';
+import React from 'react';
 import { TeamCreation } from '../components/TeamCreation';
 import { useCreateTeam } from '../hooks/useTeams';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Feature: F002
@@ -12,8 +13,8 @@ import { useCreateTeam } from '../hooks/useTeams';
  * Main teams page with creation flow
  */
 export const TeamsPage: React.FC = () => {
-  // TODO: Replace with actual player context/auth
-  const [currentPlayerId] = useState(1);
+  const { currentPlayer } = useAuth();
+  const currentPlayerId = currentPlayer!.id;
 
   const createTeamMutation = useCreateTeam();
 

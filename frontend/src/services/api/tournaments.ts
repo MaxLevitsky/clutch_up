@@ -16,6 +16,17 @@ export interface Tournament {
   format: string;
   is_team_tournament: number;
   team_size?: number;
+  creator_id?: number;
+  creator_username?: string;
+}
+
+export interface TournamentUpdatePayload {
+  name?: string;
+  rank_tier?: string;
+  region?: string;
+  capacity?: number;
+  format?: string;
+  start_time?: string;
 }
 
 export interface TournamentCreateRequest {
@@ -111,6 +122,15 @@ export const tournamentsApi = {
    */
   createTournament: async (request: TournamentCreateRequest): Promise<Tournament> => {
     const response = await apiClient.post<Tournament>('/tournaments/', request);
+    return response.data;
+  },
+
+  generateBracket: async (tournamentId: number): Promise<void> => {
+    await apiClient.post(`/tournaments/${tournamentId}/generate-bracket`);
+  },
+
+  updateTournament: async (tournamentId: number, data: TournamentUpdatePayload): Promise<Tournament> => {
+    const response = await apiClient.put<Tournament>(`/tournaments/${tournamentId}`, data);
     return response.data;
   },
 };

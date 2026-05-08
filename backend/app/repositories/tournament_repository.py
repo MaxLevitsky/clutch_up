@@ -57,6 +57,16 @@ class TournamentRepository:
     def get_all_tournaments(self) -> List[Tournament]:
         return self.db.query(Tournament).all()
 
+    def update(self, tournament_id: int, fields: dict) -> Optional[Tournament]:
+        tournament = self.get_by_id(tournament_id)
+        if not tournament:
+            return None
+        for key, value in fields.items():
+            setattr(tournament, key, value)
+        self.db.commit()
+        self.db.refresh(tournament)
+        return tournament
+
     def create(self, tournament: Tournament) -> Tournament:
         """
         Feature: F004

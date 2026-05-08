@@ -6,9 +6,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.tournament_service import TournamentService
+from app.services.progression_service import ProgressionService
+from app.services.match_service import MatchService
 from app.repositories.tournament_repository import TournamentRepository
 from app.repositories.player_repository import PlayerRepository
-from app.schemas.tournament import TournamentResponse, TournamentListResponse, TournamentCreateRequest
+from app.schemas.tournament import TournamentResponse, TournamentListResponse, TournamentCreateRequest, TournamentUpdateRequest
+from app.dependencies import get_current_player_id
 from app.schemas.registration import RegistrationRequest, RegistrationResponse
 from typing import List
 from pydantic import ValidationError
@@ -19,7 +22,8 @@ router = APIRouter(prefix="/api/tournaments", tags=["tournaments"])
 def get_tournament_service(db: Session = Depends(get_db)) -> TournamentService:
     tournament_repo = TournamentRepository(db)
     player_repo = PlayerRepository(db)
-    return TournamentService(tournament_repo, player_repo)
+    progression_service = ProgressionService(db)
+    return TournamentService(tournament_repo, player_repo, progression_service)
 
 
 @router.get("/eligible/{player_id}", response_model=TournamentListResponse)
@@ -53,6 +57,58 @@ def get_all_tournaments(
         tournaments=tournaments,
         total=len(tournaments)
     )
+
+
+@router.get("/{tournament_id}", response_model=TournamentResponse)
+def get_tournament(
+    tournament_id: int,
+    service: TournamentService = Depends(get_tournament_service)
+):
+    """Get a single tournament by ID."""
+    tournament = service.tournament_repo.get_by_id(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+    return tournament
+
+
+@router.put("/{tournament_id}", response_model=TournamentResponse)
+def update_tournament(
+    tournament_id: int,
+    request: TournamentUpdateRequest,
+    current_player_id: int = Depends(get_current_player_id),
+    service: TournamentService = Depends(get_tournament_service),
+):
+    """Update tournament parameters. Only the creator can edit."""
+    update_data = request.model_dump(exclude_unset=True)
+    result = service.update_tournament(tournament_id, update_data, current_player_id)
+
+    if result["status"] == "error":
+        code = result.get("code", 400)
+        raise HTTPException(status_code=code, detail=result["message"])
+
+    return result["tournament"]
+
+
+@router.post("/{tournament_id}/generate-bracket")
+def generate_bracket(
+    tournament_id: int,
+    service: TournamentService = Depends(get_tournament_service),
+    db: Session = Depends(get_db),
+):
+    """Generate (or regenerate) the bracket for a tournament."""
+    tournament = service.tournament_repo.get_by_id(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+    from app.models.match import Match
+    db.query(Match).filter(Match.tournament_id == tournament_id).delete()
+    db.commit()
+    MatchService(db).generate_bracket(
+        tournament_id=tournament_id,
+        capacity=tournament.capacity,
+        format=tournament.format,
+        start_time=tournament.start_time,
+    )
+    return {"status": "success", "message": "Bracket generated"}
 
 
 @router.post("/register", response_model=RegistrationResponse)
@@ -105,7 +161,9 @@ def validate_tournament_eligibility(
 @router.post("/", response_model=TournamentResponse, status_code=status.HTTP_201_CREATED)
 def create_tournament(
     request: TournamentCreateRequest,
-    service: TournamentService = Depends(get_tournament_service)
+    current_player_id: int = Depends(get_current_player_id),
+    service: TournamentService = Depends(get_tournament_service),
+    db: Session = Depends(get_db),
 ):
     """
     Feature: F004
@@ -123,7 +181,8 @@ def create_tournament(
             format=request.format,
             start_time=request.start_time,
             is_team_tournament=request.is_team_tournament,
-            team_size=request.team_size
+            team_size=request.team_size,
+            creator_id=current_player_id,
         )
 
         # NFR-13: Return 400 with clear error messages for validation errors
@@ -133,8 +192,9 @@ def create_tournament(
                 detail=result["message"]
             )
 
+        tournament = result["tournament"]
         # NFR-14: Return 201 Created, tournament immediately visible via GET /api/tournaments/
-        return result["tournament"]
+        return tournament
 
     except ValidationError as e:
         # NFR-13: Pydantic validation errors return 400 with clear messages

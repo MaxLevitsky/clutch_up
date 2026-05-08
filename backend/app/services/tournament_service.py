@@ -5,14 +5,20 @@
 from app.repositories.tournament_repository import TournamentRepository
 from app.repositories.player_repository import PlayerRepository
 from app.models.tournament import Tournament, TournamentStatus
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from datetime import datetime
 
 
 class TournamentService:
-    def __init__(self, tournament_repo: TournamentRepository, player_repo: PlayerRepository):
+    def __init__(
+        self,
+        tournament_repo: TournamentRepository,
+        player_repo: PlayerRepository,
+        progression_service=None,
+    ):
         self.tournament_repo = tournament_repo
         self.player_repo = player_repo
+        self.progression_service = progression_service
 
     def get_eligible_tournaments(self, player_id: int) -> List[Tournament]:
         """
@@ -128,6 +134,10 @@ class TournamentService:
             registration = self.tournament_repo.register_player(tournament_id, player_id)
             tournament = self.tournament_repo.get_by_id(tournament_id)
 
+            # Feature: F003 — award participation points and check badges
+            if self.progression_service:
+                self.progression_service.award_tournament_participation(player_id)
+
             return {
                 "status": "success",
                 "message": f"Successfully registered for {tournament.name}",
@@ -162,7 +172,8 @@ class TournamentService:
         format: str,
         start_time: datetime,
         is_team_tournament: bool,
-        team_size: int | None
+        team_size: int | None,
+        creator_id: int | None = None,
     ) -> Dict[str, Any]:
         """
         Feature: F004
@@ -170,11 +181,11 @@ class TournamentService:
         Requirements: FR-13, FR-14, FR-15, FR-16
         Create a new tournament with validation
         """
-        # FR-14: Validate capacity (8-64)
-        if capacity < 8 or capacity > 64:
+        # FR-14: Validate capacity (1-64)
+        if capacity < 1 or capacity > 64:
             return {
                 "status": "error",
-                "message": "Capacity must be between 8 and 64"
+                "message": "Capacity must be between 1 and 64"
             }
 
         # FR-14: Validate start time (must be in future)
@@ -215,8 +226,9 @@ class TournamentService:
                 start_time=start_time,
                 is_team_tournament=1 if is_team_tournament else 0,
                 team_size=team_size,
-                status=TournamentStatus.UPCOMING,  # FR-15
-                registered_count=0  # FR-15
+                status=TournamentStatus.REGISTRATION_OPEN,
+                registered_count=0,  # FR-15
+                creator_id=creator_id,
             )
 
             created_tournament = self.tournament_repo.create(tournament)
@@ -233,3 +245,28 @@ class TournamentService:
                 "message": "Tournament creation failed. Please try again.",
                 "error": str(e)
             }
+
+    def update_tournament(
+        self,
+        tournament_id: int,
+        update_data: dict,
+        current_player_id: int,
+    ) -> Dict[str, Any]:
+        tournament = self.tournament_repo.get_by_id(tournament_id)
+        if not tournament:
+            return {"status": "error", "code": 404, "message": "Tournament not found"}
+
+        if tournament.creator_id != current_player_id:
+            return {"status": "error", "code": 403, "message": "Only the creator can edit this tournament"}
+
+        if tournament.status not in (TournamentStatus.UPCOMING, TournamentStatus.REGISTRATION_OPEN):
+            return {"status": "error", "code": 400, "message": "Tournament cannot be edited in its current status"}
+
+        if "start_time" in update_data and update_data["start_time"] <= datetime.now():
+            return {"status": "error", "code": 400, "message": "Start time must be in the future"}
+
+        if "capacity" in update_data and update_data["capacity"] < tournament.registered_count:
+            return {"status": "error", "code": 400, "message": "Capacity cannot be less than current registrations"}
+
+        updated = self.tournament_repo.update(tournament_id, update_data)
+        return {"status": "success", "tournament": updated}

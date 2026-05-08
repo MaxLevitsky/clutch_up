@@ -2,9 +2,10 @@
 // Scenario: SC001, SC002
 // Tournaments Page
 
-import React, { useState } from 'react';
+import React from 'react';
 import { TournamentList } from '../components/TournamentList';
 import { useAllTournaments, useRegisterTournament } from '../hooks/useTournaments';
+import { useAuth } from '../context/AuthContext';
 
 /**
  * Feature: F001, F004
@@ -12,8 +13,8 @@ import { useAllTournaments, useRegisterTournament } from '../hooks/useTournament
  * Main tournaments page with registration flow and all tournaments display
  */
 export const TournamentsPage: React.FC = () => {
-  // TODO: Replace with actual player context/auth
-  const [currentPlayerId] = useState(1);
+  const { currentPlayer } = useAuth();
+  const currentPlayerId = currentPlayer!.id;
 
   const { data, isLoading } = useAllTournaments();
   const registerMutation = useRegisterTournament();

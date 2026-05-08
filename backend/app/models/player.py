@@ -21,6 +21,7 @@ class Player(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
+    password_hash = Column(String, nullable=True)
     rank = Column(Enum(RankTier), default=RankTier.BEGINNER, nullable=False)
     region = Column(String, nullable=False)
     progression_level = Column(Integer, default=1, nullable=False)

@@ -549,7 +549,7 @@ def test_create_tournament_capacity_exceeds_maximum():
     # Assert
     assert result["status"] == "error"
     assert "capacity" in result["message"].lower()
-    assert "8" in result["message"] and "64" in result["message"]
+    assert "64" in result["message"]
     mock_tournament_repo.create.assert_not_called()
 
 
@@ -573,7 +573,7 @@ def test_create_tournament_capacity_below_minimum():
         name="Tiny Tournament",
         rank_tier="BEGINNER",
         region="NA",
-        capacity=4,  # Below minimum of 8
+        capacity=0,  # Below minimum of 1
         format="Single Elimination",
         start_time=future_time,
         is_team_tournament=False,
@@ -583,7 +583,6 @@ def test_create_tournament_capacity_below_minimum():
     # Assert
     assert result["status"] == "error"
     assert "capacity" in result["message"].lower()
-    assert "8" in result["message"] and "64" in result["message"]
     mock_tournament_repo.create.assert_not_called()
 
 

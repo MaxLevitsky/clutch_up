@@ -13,11 +13,13 @@ class TeamService:
         self,
         team_repo: TeamRepository,
         player_repo: PlayerRepository,
-        tournament_repo: TournamentRepository
+        tournament_repo: TournamentRepository,
+        progression_service=None,
     ):
         self.team_repo = team_repo
         self.player_repo = player_repo
         self.tournament_repo = tournament_repo
+        self.progression_service = progression_service
 
     def create_team(self, name: str, owner_id: int, badge: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -115,10 +117,14 @@ class TeamService:
         success = self.team_repo.accept_invite(token, player_id)
         if success:
             team = self.team_repo.get_by_id(invite.team_id)
+            # Feature: F003 — award Team Player badge
+            if self.progression_service:
+                self.progression_service.award_team_join(player_id)
             return {
                 "status": "success",
                 "message": f"Successfully joined {team.name}",
-                "team": team
+                "team_id": team.id,
+                "team_name": team.name,
             }
         else:
             return {

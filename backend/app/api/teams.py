@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.team_service import TeamService
+from app.services.progression_service import ProgressionService
 from app.repositories.team_repository import TeamRepository
 from app.repositories.player_repository import PlayerRepository
 from app.repositories.tournament_repository import TournamentRepository
@@ -18,7 +19,8 @@ def get_team_service(db: Session = Depends(get_db)) -> TeamService:
     team_repo = TeamRepository(db)
     player_repo = PlayerRepository(db)
     tournament_repo = TournamentRepository(db)
-    return TeamService(team_repo, player_repo, tournament_repo)
+    progression_service = ProgressionService(db)
+    return TeamService(team_repo, player_repo, tournament_repo, progression_service)
 
 
 @router.post("/")

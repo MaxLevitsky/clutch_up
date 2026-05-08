@@ -3,7 +3,7 @@
 // Tournament Hooks
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { tournamentsApi, RegistrationRequest, TournamentCreateRequest } from '../services/api/tournaments';
+import { tournamentsApi, RegistrationRequest, TournamentCreateRequest, TournamentUpdatePayload } from '../services/api/tournaments';
 
 /**
  * Feature: F001
@@ -78,6 +78,18 @@ export const useCreateTournament = () => {
       tournamentsApi.createTournament(request),
     onSuccess: () => {
       // NFR-14: Invalidate tournaments query to show newly created tournament
+      queryClient.invalidateQueries({ queryKey: ['tournaments'] });
+    },
+  });
+};
+
+export const useUpdateTournament = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: TournamentUpdatePayload }) =>
+      tournamentsApi.updateTournament(id, data),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tournaments'] });
     },
   });

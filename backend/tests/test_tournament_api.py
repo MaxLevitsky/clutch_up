@@ -11,6 +11,7 @@ from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.database import Base, get_db
 from app.models.tournament import TournamentStatus
+from app.dependencies import get_current_player_id
 
 
 # Test database setup
@@ -29,6 +30,7 @@ def override_get_db():
 
 
 app.dependency_overrides[get_db] = override_get_db
+app.dependency_overrides[get_current_player_id] = lambda: 1
 
 
 @pytest.fixture(scope="function")
@@ -77,7 +79,7 @@ def test_api_create_tournament_success(client):
     assert data["region"] == "NA"
     assert data["capacity"] == 16
     assert data["registered_count"] == 0
-    assert data["status"] == "UPCOMING"
+    assert data["status"] == "REGISTRATION_OPEN"
     assert data["format"] == "Single Elimination"
     assert data["is_team_tournament"] == 0
 
@@ -224,7 +226,7 @@ def test_created_tournament_immediately_visible(client):
     # Verify tournament has correct attributes
     found_tournament = next(t for t in tournaments if t["id"] == created_tournament["id"])
     assert found_tournament["name"] == "Visibility Test Tournament"
-    assert found_tournament["status"] == "UPCOMING"
+    assert found_tournament["status"] == "REGISTRATION_OPEN"
     assert found_tournament["registered_count"] == 0
 
 
@@ -253,7 +255,7 @@ def test_api_create_team_tournament_with_team_size(client):
     data = response.json()
     assert data["is_team_tournament"] == 1
     assert data["team_size"] == 5
-    assert data["status"] == "UPCOMING"
+    assert data["status"] == "REGISTRATION_OPEN"
 
 
 def test_api_create_tournament_capacity_exceeds_max(client):

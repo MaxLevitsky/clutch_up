@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs basename *)",
+      "Bash(venv/Scripts/pytest.exe tests/test_security.py tests/test_progression_service.py tests/test_match_service.py -v)",
+      "Bash(venv/Scripts/pytest.exe --tb=no -q)",
+      "Bash(curl -s http://localhost:8080/api/matches/tournament/1)",
+      "Bash(curl -s http://localhost:8080/api/tournaments/)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(t['id'], t['name']\\) for t in d.get\\('tournaments',[]\\)]\")",
+      "Bash(curl -s \"http://localhost:8080/api/tournaments/\")",
+      "Bash(curl -s \"http://localhost:8080/api/matches/tournament/50\")",
+      "Bash(curl -s \"http://localhost:8080/api/matches/tournament/100\")",
+      "Bash(curl -s -X POST http://localhost:8080/api/tournaments/ -H 'Content-Type: application/json' -d '{\"name\":\"Test Bracket\",\"rank_tier\":\"BEGINNER\",\"region\":\"NA\",\"capacity\":4,\"format\":\"Single Elimination\",\"start_time\":\"2027-01-01T12:00:00\",\"is_team_tournament\":false}')",
+      "Bash(curl -s \"http://localhost:8080/api/matches/tournament/656\")",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(.venv/Scripts/pytest.exe backend/tests/ -v --tb=short)",
+      "Bash(.venv/Scripts/pip.exe install *)",
+      "Bash(.venv/Scripts/python.exe -c \"from passlib.context import CryptContext; print\\('ok'\\)\")",
+      "Bash(../.venv/Scripts/pytest.exe tests/ -v --tb=short)",
+      "Bash(../.venv/Scripts/pytest.exe tests/test_tournament_api.py::test_api_create_tournament_success -v --tb=short)",
+      "Bash(../.venv/Scripts/pytest.exe tests/test_tournament_api.py::test_api_create_tournament_success -v --tb=long)",
+      "Bash(../.venv/Scripts/pytest.exe tests/test_performance.py::TestTournamentCreationPerformance::test_tournament_creation_performance_single -v --tb=short)",
+      "Bash(.venv/Scripts/python.exe -c \"import sqlite3; conn = sqlite3.connect\\('backend/clutchup.db'\\); conn.execute\\('ALTER TABLE tournaments ADD COLUMN creator_id INTEGER REFERENCES players\\(id\\)'\\); conn.commit\\(\\); conn.close\\(\\); print\\('done'\\)\")",
+      "Bash(../.venv/Scripts/python.exe -c \"import sqlite3; conn = sqlite3.connect\\('clutchup.db'\\); conn.execute\\('ALTER TABLE tournaments ADD COLUMN creator_id INTEGER REFERENCES players\\(id\\)'\\); conn.commit\\(\\); conn.close\\(\\); print\\('done'\\)\")",
+      "Bash(../.venv/Scripts/pytest.exe tests/test_tournament_api.py tests/test_performance.py -v --tb=short)",
+      "Bash(../.venv/Scripts/pytest.exe tests/test_tournament_creator.py -v --tb=short)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(.venv/Scripts/python.exe -c \"from pydantic import EmailStr; print\\('ok'\\)\")",
+      "Bash(.venv/Scripts/pip.exe list *)",
+      "Bash(curl -s -X POST http://localhost:8080/api/auth/register -H \"Content-Type: application/json\" -d '{\"username\":\"testuser123\",\"email\":\"test123@example.com\",\"password\":\"pass123\",\"region\":\"NA\"}')",
+      "Bash(curl -s -X POST http://localhost:8080/api/auth/register -H \"Content-Type: application/json\" -d '{\"username\":\"testuser123\",\"email\":\"test123@example.com\",\"password\":\"pass123\",\"region\":\"NA\"}' -v)",
+      "Bash(../.venv/Scripts/python.exe -c ' *)",
+      "Bash(../.venv/Scripts/pip.exe install *)",
+      "Bash(../.venv/Scripts/python.exe -c \"import bcrypt; print\\(bcrypt.__version__\\)\")",
+      "Bash(xargs grep *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)"
+    ]
+  }
+}

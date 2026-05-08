@@ -3,10 +3,17 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { TournamentsPage } from './pages/TournamentsPage';
 import { TournamentCreatePage } from './pages/TournamentCreatePage';
+import { TournamentDetailPage } from './pages/TournamentDetailPage';
+import { TournamentEditPage } from './pages/TournamentEditPage';
 import { TeamsPage } from './pages/TeamsPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -17,30 +24,62 @@ const queryClient = new QueryClient({
   },
 });
 
+function NavBar() {
+  const { currentPlayer, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <nav className="navbar">
+      <h1>ClutchUp</h1>
+      <div className="nav-links">
+        <Link to="/">Home</Link>
+        {isAuthenticated ? (
+          <>
+            <Link to="/tournaments">Tournaments</Link>
+            <Link to="/tournaments/create">Create Tournament</Link>
+            <Link to="/teams">Teams</Link>
+            <Link to="/profile">Profile</Link>
+            <span style={{ marginLeft: 12 }}>👤 {currentPlayer?.username}</span>
+            <button onClick={handleLogout} style={{ marginLeft: 8 }}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/login">Sign In</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+      </div>
+    </nav>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div className="app">
-          <nav className="navbar">
-            <h1>ClutchUp</h1>
-            <div className="nav-links">
-              <Link to="/">Home</Link>
-              <Link to="/tournaments">Tournaments</Link>
-              <Link to="/tournaments/create">Create Tournament</Link>
-              <Link to="/teams">Teams</Link>
-            </div>
-          </nav>
-
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/tournaments" element={<TournamentsPage />} />
-              <Route path="/tournaments/create" element={<TournamentCreatePage />} />
-              <Route path="/teams" element={<TeamsPage />} />
-            </Routes>
-          </main>
-        </div>
+        <AuthProvider>
+          <div className="app">
+            <NavBar />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/tournaments" element={<ProtectedRoute><TournamentsPage /></ProtectedRoute>} />
+                <Route path="/tournaments/create" element={<ProtectedRoute><TournamentCreatePage /></ProtectedRoute>} />
+                <Route path="/tournaments/:id" element={<ProtectedRoute><TournamentDetailPage /></ProtectedRoute>} />
+                <Route path="/tournaments/:id/edit" element={<ProtectedRoute><TournamentEditPage /></ProtectedRoute>} />
+                <Route path="/teams" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+                <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              </Routes>
+            </main>
+          </div>
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
