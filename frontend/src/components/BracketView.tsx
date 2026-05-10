@@ -8,9 +8,17 @@ interface BracketViewProps {
   pendingMatchId?: number | null;
 }
 
-function roundLabel(round: number, maxRound: number): string {
-  if (round === maxRound && maxRound > 1) return `Final (Round ${round})`;
-  if (round === maxRound - 1 && maxRound > 2) return `Semifinal (Round ${round})`;
+function roundLabel(round: number, wbRounds: number, isDE: boolean): string {
+  if (round === 200) return 'Grand Final';
+  if (round > 100) {
+    const lb = round - 100;
+    const maxLb = 2 * (wbRounds - 1);
+    if (lb === maxLb) return 'LB Final';
+    return `LB Round ${lb}`;
+  }
+  if (isDE) return round === wbRounds ? 'WB Final' : `WB Round ${round}`;
+  if (round === wbRounds && wbRounds > 1) return `Final`;
+  if (round === wbRounds - 1 && wbRounds > 2) return `Semifinal`;
   return `Round ${round}`;
 }
 
@@ -41,7 +49,8 @@ export const BracketView: React.FC<BracketViewProps> = ({ matches, isCreator, on
   }
 
   const rounds = [...new Set(matches.map(m => m.round_number))].sort((a, b) => a - b);
-  const maxRound = Math.max(...rounds);
+  const isDE = rounds.some(r => r > 100);
+  const wbRounds = Math.max(...rounds.filter(r => r <= 100), 1);
 
   const canRecord = (match: MatchResponse) =>
     isCreator &&
@@ -55,7 +64,7 @@ export const BracketView: React.FC<BracketViewProps> = ({ matches, isCreator, on
       {rounds.map(round => (
         <div key={round} style={{ minWidth: 220 }}>
           <h3 style={{ fontSize: 14, textTransform: 'uppercase', letterSpacing: 1, color: '#555', marginBottom: 12 }}>
-            {roundLabel(round, maxRound)}
+            {roundLabel(round, wbRounds, isDE)}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {matches.filter(m => m.round_number === round).map(match => (

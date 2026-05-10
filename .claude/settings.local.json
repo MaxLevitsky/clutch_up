@@ -35,7 +35,24 @@
       "Bash(../.venv/Scripts/python.exe -c \"import bcrypt; print\\(bcrypt.__version__\\)\")",
       "Bash(xargs grep *)",
       "Bash(npx tsc *)",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(handle.exe \"clutchup.db\")",
+      "Bash(tasklist)",
+      "Bash(ssh -V)",
+      "Bash(echo \"exit:$?\")",
+      "Bash(python -c \"import paramiko; print\\('paramiko ok'\\)\")",
+      "Bash(python3 -c \"import paramiko; print\\('paramiko ok'\\)\")",
+      "Bash(pip install *)",
+      "Bash(pip3 install *)",
+      "Bash(cmd.exe /c \"python --version\")",
+      "Bash(cmd.exe /c \"where python\")",
+      "Read(//usr/**)",
+      "Bash(ls /c/Python*)",
+      "Read(//c/Users/Maksim.Levitskii/AppData/Local/Programs/Python/**)",
+      "Bash(/c/Users/Maksim.Levitskii/AppData/Local/Programs/Python/Python313/python.exe -m pip install paramiko)",
+      "Bash(/c/Users/Maksim.Levitskii/AppData/Local/Programs/Python/Python313/python.exe deploy.py)",
+      "Bash(/c/Users/Maksim.Levitskii/AppData/Local/Programs/Python/Python313/python.exe deploy_run.py)",
+      "Bash(/c/Users/Maksim.Levitskii/AppData/Local/Programs/Python/Python313/python.exe check.py)"
     ]
   }
 }
