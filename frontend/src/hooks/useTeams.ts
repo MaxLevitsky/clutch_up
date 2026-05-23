@@ -94,6 +94,22 @@ export const useRegisterTeamForTournament = () => {
   });
 };
 
+export const useMyTeams = (playerId: number) => {
+  return useQuery({
+    queryKey: ['teams', 'my', playerId],
+    queryFn: () => teamsApi.getMyTeams(playerId),
+    enabled: !!playerId,
+  });
+};
+
+export const useTeam = (teamId: number) => {
+  return useQuery({
+    queryKey: ['teams', teamId],
+    queryFn: () => teamsApi.getTeamById(teamId),
+    enabled: !!teamId,
+  });
+};
+
 /**
  * Feature: F002
  * Hook to revoke invite

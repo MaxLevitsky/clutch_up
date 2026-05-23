@@ -270,6 +270,22 @@ class TeamService:
                 "error": str(e)
             }
 
+    def get_my_teams(self, player_id: int) -> Dict[str, Any]:
+        teams = self.team_repo.get_teams_by_player_id(player_id)
+        return {
+            "status": "success",
+            "teams": [
+                {
+                    "id": t.id,
+                    "name": t.name,
+                    "badge": t.badge,
+                    "owner_id": t.owner_id,
+                    "created_at": t.created_at.isoformat() if t.created_at else None,
+                }
+                for t in teams
+            ],
+        }
+
     def revoke_invite(self, token: str, owner_id: int) -> Dict[str, Any]:
         """
         Feature: F002

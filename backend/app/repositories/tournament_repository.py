@@ -55,7 +55,7 @@ class TournamentRepository:
         )
 
     def get_all_tournaments(self) -> List[Tournament]:
-        return self.db.query(Tournament).all()
+        return self.db.query(Tournament).order_by(Tournament.id.desc()).all()
 
     def update(self, tournament_id: int, fields: dict) -> Optional[Tournament]:
         tournament = self.get_by_id(tournament_id)

@@ -9,6 +9,7 @@ import { TournamentCreatePage } from './pages/TournamentCreatePage';
 import { TournamentDetailPage } from './pages/TournamentDetailPage';
 import { TournamentEditPage } from './pages/TournamentEditPage';
 import { TeamsPage } from './pages/TeamsPage';
+import { TeamDetailPage } from './pages/TeamDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
@@ -75,6 +76,7 @@ function App() {
                 <Route path="/tournaments/:id" element={<ProtectedRoute><TournamentDetailPage /></ProtectedRoute>} />
                 <Route path="/tournaments/:id/edit" element={<ProtectedRoute><TournamentEditPage /></ProtectedRoute>} />
                 <Route path="/teams" element={<ProtectedRoute><TeamsPage /></ProtectedRoute>} />
+                <Route path="/teams/:id" element={<ProtectedRoute><TeamDetailPage /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               </Routes>
             </main>

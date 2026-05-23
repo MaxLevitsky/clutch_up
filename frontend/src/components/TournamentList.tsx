@@ -10,6 +10,8 @@ interface TournamentListProps {
   tournaments: Tournament[];
   onJoinTournament: (tournamentId: number) => void;
   isLoading?: boolean;
+  title?: string;
+  emptyMessage?: string;
 }
 
 /**
@@ -22,18 +24,20 @@ export const TournamentList: React.FC<TournamentListProps> = ({
   tournaments,
   onJoinTournament,
   isLoading,
+  title = 'Available Tournaments',
+  emptyMessage = 'No tournaments available.',
 }) => {
   if (isLoading) {
     return <div className="loading">Loading tournaments...</div>;
   }
 
   if (!tournaments || tournaments.length === 0) {
-    return <div className="no-tournaments">No eligible tournaments available.</div>;
+    return <div className="no-tournaments">{emptyMessage}</div>;
   }
 
   return (
     <div className="tournament-list">
-      <h2>Available Tournaments</h2>
+      <h2>{title}</h2>
       {tournaments.map((tournament) => (
         <div key={tournament.id} className="tournament-card">
           <h3><Link to={`/tournaments/${tournament.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{tournament.name}</Link></h3>

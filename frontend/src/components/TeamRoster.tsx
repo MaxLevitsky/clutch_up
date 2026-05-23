@@ -6,6 +6,7 @@ import React from 'react';
 
 interface TeamMember {
   player_id: number;
+  player_username?: string;
   role: string;
   joined_at: string;
 }
@@ -43,7 +44,7 @@ export const TeamRoster: React.FC<TeamRosterProps> = ({
           <table>
             <thead>
               <tr>
-                <th>Player ID</th>
+                <th>Player</th>
                 <th>Role</th>
                 <th>Joined Date</th>
               </tr>
@@ -51,7 +52,7 @@ export const TeamRoster: React.FC<TeamRosterProps> = ({
             <tbody>
               {members.map((member) => (
                 <tr key={member.player_id}>
-                  <td>{member.player_id}</td>
+                  <td>{member.player_username ?? `#${member.player_id}`}</td>
                   <td>{member.role}</td>
                   <td>{new Date(member.joined_at).toLocaleDateString()}</td>
                 </tr>

@@ -96,4 +96,14 @@ export const teamsApi = {
     );
     return response.data;
   },
+
+  getMyTeams: async (playerId: number): Promise<any> => {
+    const response = await apiClient.get(`/teams/my-teams?player_id=${playerId}`);
+    return response.data;
+  },
+
+  getTeamById: async (teamId: number): Promise<any> => {
+    const response = await apiClient.get(`/teams/${teamId}/roster`);
+    return response.data;
+  },
 };

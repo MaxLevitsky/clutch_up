@@ -85,6 +85,17 @@ class TeamRepository:
     def get_team_member_count(self, team_id: int) -> int:
         return self.db.query(TeamMembership).filter(TeamMembership.team_id == team_id).count()
 
+    def get_all_teams(self) -> List[Team]:
+        return self.db.query(Team).all()
+
+    def get_teams_by_player_id(self, player_id: int) -> List[Team]:
+        return (
+            self.db.query(Team)
+            .join(TeamMembership, Team.id == TeamMembership.team_id)
+            .filter(TeamMembership.player_id == player_id)
+            .all()
+        )
+
     def revoke_invite(self, token: str) -> bool:
         invite = self.get_invite_by_token(token)
         if invite and invite.status == InviteStatus.PENDING:

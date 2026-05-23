@@ -2,10 +2,26 @@
 // Scenario: SC001, SC002
 // Tournaments Page
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { TournamentList } from '../components/TournamentList';
 import { useAllTournaments, useRegisterTournament } from '../hooks/useTournaments';
 import { useAuth } from '../context/AuthContext';
+import { Tournament } from '../services/api/tournaments';
+
+const RANK_ORDER: Record<string, number> = {
+  BEGINNER: 0,
+  INTERMEDIATE: 1,
+  ADVANCED: 2,
+  EXPERT: 3,
+};
+
+const OPEN_STATUSES = new Set(['UPCOMING', 'REGISTRATION_OPEN', 'REGISTRATION_CLOSED']);
+
+function sortByRankThenDate(a: Tournament, b: Tournament): number {
+  const rankDiff = (RANK_ORDER[a.rank_tier] ?? 99) - (RANK_ORDER[b.rank_tier] ?? 99);
+  if (rankDiff !== 0) return rankDiff;
+  return new Date(a.start_time).getTime() - new Date(b.start_time).getTime();
+}
 
 /**
  * Feature: F001, F004
@@ -18,6 +34,13 @@ export const TournamentsPage: React.FC = () => {
 
   const { data, isLoading } = useAllTournaments();
   const registerMutation = useRegisterTournament();
+
+  const { openTournaments, activePastTournaments } = useMemo(() => {
+    const all = data?.tournaments ?? [];
+    const open = all.filter(t => OPEN_STATUSES.has(t.status)).sort(sortByRankThenDate);
+    const activePast = all.filter(t => !OPEN_STATUSES.has(t.status)).sort(sortByRankThenDate);
+    return { openTournaments: open, activePastTournaments: activePast };
+  }, [data]);
 
   const handleJoinTournament = async (tournamentId: number) => {
     try {
@@ -41,9 +64,18 @@ export const TournamentsPage: React.FC = () => {
     <div className="tournaments-page">
       <h1>Tournaments</h1>
       <TournamentList
-        tournaments={data?.tournaments || []}
+        tournaments={openTournaments}
         onJoinTournament={handleJoinTournament}
         isLoading={isLoading}
+        title="Available Tournaments"
+        emptyMessage="No open tournaments available."
+      />
+      <TournamentList
+        tournaments={activePastTournaments}
+        onJoinTournament={handleJoinTournament}
+        isLoading={false}
+        title="Ongoing / Past Tournaments"
+        emptyMessage="No ongoing or past tournaments."
       />
     </div>
   );

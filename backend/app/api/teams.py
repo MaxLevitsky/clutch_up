@@ -54,6 +54,17 @@ def create_team(
     return result
 
 
+@router.get("/my-teams")
+def get_my_teams(
+    player_id: int,
+    service: TeamService = Depends(get_team_service)
+):
+    result = service.get_my_teams(player_id)
+    if result["status"] == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+    return result
+
+
 @router.post("/invites", response_model=dict)
 def create_team_invite(
     invite_data: TeamInviteCreate,
@@ -70,6 +81,16 @@ def create_team_invite(
 
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
+
+    if "invite" in result and result["invite"]:
+        inv = result["invite"]
+        result["invite"] = {
+            "id": inv.id,
+            "team_id": inv.team_id,
+            "token": inv.token,
+            "expires_at": inv.expires_at.isoformat() if inv.expires_at else None,
+            "status": inv.status.value if hasattr(inv.status, "value") else inv.status,
+        }
 
     return result
 
@@ -109,6 +130,33 @@ def get_team_roster(
 
     if result["status"] == "error":
         raise HTTPException(status_code=404, detail=result["message"])
+
+    if "team" in result and result["team"]:
+        t = result["team"]
+        result["team"] = {
+            "id": t.id,
+            "name": t.name,
+            "badge": t.badge,
+            "owner_id": t.owner_id,
+            "created_at": t.created_at.isoformat() if t.created_at else None,
+        }
+
+    if "members" in result:
+        from app.models.player import Player
+        player_ids = [m.player_id for m in result["members"]]
+        players = {
+            p.id: p.username
+            for p in service.player_repo.db.query(Player).filter(Player.id.in_(player_ids)).all()
+        }
+        result["members"] = [
+            {
+                "player_id": m.player_id,
+                "player_username": players.get(m.player_id),
+                "role": m.role.value if hasattr(m.role, "value") else m.role,
+                "joined_at": m.joined_at.isoformat() if m.joined_at else None,
+            }
+            for m in result["members"]
+        ]
 
     return result
 
